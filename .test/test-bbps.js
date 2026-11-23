@@ -1,0 +1,22 @@
+const { chromium } = require('playwright');
+(async()=>{
+  const browser=await chromium.launch({headless:true});
+  const page=await browser.newPage({viewport:{width:390,height:844}});
+  const errors=[];
+  page.on('pageerror',e=>errors.push(e.message));
+  await page.goto('http://localhost:4173/index.html',{waitUntil:'networkidle'});
+  await page.evaluate(()=>localStorage.removeItem('societyPay.v3'));
+  await page.reload({waitUntil:'networkidle'});
+  await page.getByRole('button',{name:/Bills\/BBPS/}).count().catch(()=>{});
+  await page.getByRole('button',{name:/Bills\/EB/}).click();
+  await page.locator('[data-page="eb"]').click();
+  await page.getByRole('button',{name:'Live Fetch'}).click();
+  await page.once('dialog',async dialog=>{await dialog.accept('4509281734')});
+  await page.getByRole('button',{name:'Live Fetch'}).click();
+  await page.waitForTimeout(1200);
+  const status=await page.locator('#liveFetchStatus').textContent();
+  const eb=await page.locator('#ebTotal').textContent();
+  console.log(JSON.stringify({status,eb,errors}));
+  await browser.close();
+  if(errors.length||!status.includes('674')&&!status.includes('₹674'))process.exit(2);
+})();

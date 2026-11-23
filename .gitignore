@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+.venv/
+.test/node_modules/
+.test/package-lock.json
+*.sqlite3
+*.sqlite
+societypay.sqlite3
+hescom-live-bill.png
+hescom-test-output.json
+ocr-extraction.log
+.env
